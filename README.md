@@ -18,7 +18,7 @@ pip install -r requirements.txt
 <ins>**Using conda**<ins>
 
 ```
-
+conda install --file requirements.txt
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ For more instruction on using parameters:
 python csv_parser.py --help
 ```
 
-<ins>**GDELLT**<ins>
+<ins>**GDELT**<ins>
 
 ```
 python gdelt_parser.py  -s startdate -e endate --station station_list
