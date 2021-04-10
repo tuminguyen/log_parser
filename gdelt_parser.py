@@ -5,6 +5,7 @@ from elasticsearch import Elasticsearch
 from datetime import datetime, timedelta
 from utils import *
 import requests
+from config import STOP_W_EXTEND
 import traceback
 from nltk.corpus import stopwords
 import nltk
@@ -14,20 +15,7 @@ nltk.download('stopwords')
 tv_new_regex = re.compile('\t|\n')
 
 stop_list = stopwords.words('english')
-stop_list.extend(['person', 'people', 'that', "that's" 'those', "there's", "there're", 'here', 'ago', 'thing', 'things',
-                  'something', 'even', 'ago', 'already', 'yet', 'yes', 'no', 'next', 'last', 'back', 'could', 'would',
-                  'shall', 'year', 'years', "i'm", "we're", "they're", "he's", "want", "wanting", "wants", "another",
-                  "others", "say", "says", "saying", "said", "many", "much", "lot", "lots", "start", "starts", "end",
-                  "ends", "try", "tries", "tried", "around", "never", "ever", "get", "gets", "getting", "got", "gotten",
-                  "also", "day", "days", "like", "likes", "liked", "every", "look", "looking", "looked", "looks", "one",
-                  "ones", 'new', 'know', 'knowing', 'knows', 'known', 'right', 'see', 'seen', 'saw', 'sees', 'well',
-                  'need', 'needs', 'needing', 'needed', 'way', 'ways', 'thank', 'thanks', 'mr', 'mrs', 'still', 'each',
-                  'think', 'thinks', 'thought', 'thinking', 'today', 'may', 'might', "let's", "really", 'go', 'goes',
-                  'going', 'talk', 'talks', 'talking', 'told', 'make', 'making', 'made', 'makes', 'use', 'used',
-                  'using', 'take', 'taking', 'took', 'token', 'takes', "what's", 'play', 'plays', 'playing', 'played',
-                  'actually', "can't", "cannot", 'come', 'coming', 'came', 'week', 'weeks', 'month', 'months', 'kind',
-                  'kinds', 'done'
-                  ])
+stop_list.extend(STOP_W_EXTEND)
 
 
 def init_parse():
@@ -133,4 +121,3 @@ if __name__ == '__main__':
     args = init_parse()
     es = Elasticsearch('http://localhost:9200')
     tv_news_grams(args['station'])
-    # print(len(stopwords.words('english')))
