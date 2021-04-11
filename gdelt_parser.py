@@ -1,5 +1,6 @@
 import argparse
 import gzip
+import zipfile
 import io
 from elasticsearch import Elasticsearch
 from datetime import datetime, timedelta
@@ -46,7 +47,8 @@ def parse2format(data, doc_type='news'):
 
     }
     :param data: a line from file
-    :param doc_type: news -> GDELT TV news data
+    :param doc_type: [news -> GDELT TV news data | events -> GDELT Event 2.0]
+
     :return: a dict {}
     """
     result = dict()
@@ -87,12 +89,13 @@ def tv_news_grams(stations):
 
     :return:
     """
-    # generate list of time that fit with uploaded data.
+    # generate list of time that fit with uploaded data (by every day).
     time = [dt.strftime('%Y%m%d')
             for dt in datetime_range(datetime.strptime(args['start'], '%Y%m%d'),
                                      datetime.strptime(args['end'], '%Y%m%d'),
                                      timedelta(days=1))]
     for t in time:
+
         if es.indices.exists(index="tvnews") is False \
                 or is_existed(es, 'tvnews', 'date', "CONTAINS", t) is False \
                 or (
@@ -100,7 +103,7 @@ def tv_news_grams(stations):
                                                                                        1) is False) \
                 or (
                 is_existed(es, 'tvnews', 'date', "CONTAINS", t) is True and is_existed(es, 'tvnews', 'ngrams', "EQUAL",
-                                                                                       1) is False):
+                                                                                       2) is False):
             for station in stations:
                 requests_list = [
                     "http://data.gdeltproject.org/gdeltv3/iatv/ngrams/{}.{}.1gram.txt.gz".format(t, station),

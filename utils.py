@@ -18,7 +18,7 @@ def datetime_range(start, end, delta):
         current += delta
 
 
-def is_existed(es, index, field, operator, value):
+def is_existed(es, index, field, operator, value) -> object:
     '''
     check if documents already existed in index or not
     :param es: Elasticsearch object
@@ -33,4 +33,6 @@ def is_existed(es, index, field, operator, value):
     if operator == 'EQUAL':
         return res['hits']['hits'][0]['_source'][field] == value
     else:
-        return res['hits']['hits'][0]['_source'][field].__contains__(value)
+        return res['hits']['hits'][0]['_source'][field].__contains__(value[:4] + '-' + value[4:6] + '-' + value[6:8])
+
+
