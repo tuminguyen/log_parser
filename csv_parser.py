@@ -72,7 +72,7 @@ def parse2format(data):
         end_idx = data['eventid'].keys()[-1] + 1
         for i in range(start_idx, end_idx):
             item = dict()
-            item['incident_id'] = data["eventid"],
+            item['incident_id'] = data["eventid"][i],
             item['incident_time'] = {'year': data["iyear"][i], 'month': data['imonth'][i], 'day': data['iday'][i]}
             item['incident_loc'] = {"region": data['region_txt'][i], "country": data["country_txt"][i],
                                     "city": data["city"][i], "long": data["longitude"][i], "lat": data["latitude"][i]}
@@ -105,13 +105,12 @@ if __name__ == '__main__':
     url = "http://{}:9200/".format(E_HOSTNAME)
     es = Elasticsearch(url)
     # read the csv path and chunk to smaller batch with BATCH_SIZE value
-    for df in pd.read_csv(args['path'], chunksize=BATCH_SIZE, low_memory=False):  # foreach
+    for df in pd.read_csv(args['path'], chunksize=BATCH_SIZE, low_memory=False, encoding='ISO-8859-1'):  # foreach
         df = df[INTERESTED_LIST]  # keep interested fields only
         df = df.fillna(-999999)  # fill NaN = -999999 before adding to ES
         df.loc[:, :].to_dict()
         docs = parse2format(df)
         bulk2elastic(es, docs, index='terrorism')
-
 '''
 def preprocess(df)
     #find the percent of missing data on each column
