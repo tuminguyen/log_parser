@@ -1,8 +1,10 @@
 import argparse
+import json
 import traceback
 import pandas as pd
 from elasticsearch import Elasticsearch
 from config import *
+import numpy as np
 from utils import bulk2elastic
 
 BATCH_SIZE = 50000
@@ -18,6 +20,22 @@ def init_parse():
                         type=str, help='path to data file')
     arguments = parser.parse_args()
     return vars(arguments)
+
+
+def my_converter(obj):
+    '''
+    This function is created to parse dict -> json with no error of "Object of type X is not JSON serializable".
+    By using this, we can parse the dict and write it to file with JSON format. From that, Filebeat when fetching
+    the log file will be able to send it directly as JSON to Elasticsearch or Logstash.
+    :param obj:
+    :return:
+    '''
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
 
 
 def parse2format(data):
@@ -90,6 +108,7 @@ def parse2format(data):
             item['consequence'] = {"total_kill": data["nkill"][i], "total_wound": data["nwound"][i],
                                    "perp_die": data["nkillter"][i], "perp_wound": data["nwoundte"][i],
                                    "is_property_lost": data["property"][i]}
+            # print(json.dumps(item, default=my_converter()))
             docs_list.append(item)
     except Exception:
         traceback.print_exc()
@@ -107,10 +126,11 @@ if __name__ == '__main__':
     # read the csv path and chunk to smaller batch with BATCH_SIZE value
     for df in pd.read_csv(args['path'], chunksize=BATCH_SIZE, low_memory=False, encoding='ISO-8859-1'):  # foreach
         df = df[INTERESTED_LIST]  # keep interested fields only
-        df = df.fillna(-999999)  # fill NaN = -999999 before adding to ES
+        df = df.fillna(0)  # fill NaN = -999999 before adding to ES
         df.loc[:, :].to_dict()
         docs = parse2format(df)
         bulk2elastic(es, docs, index='terrorism')
+
 '''
 def preprocess(df)
     #find the percent of missing data on each column
