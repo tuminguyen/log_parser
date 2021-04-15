@@ -25,11 +25,34 @@ conda install --file requirements.txt
 
 <ins>**CSV**<ins>
 
+### Params 
 ```
-python csv_parser.py -p path_to_csv_file
+'--path', '-p':
+    type=str,
+    des`cription='path to data file'
+'--dump', '-d':
+    default=False,
+    type=bool, 
+    description='dump or log for Beats fetch or not (True: dump, False: not dump)'
+'--output', '-o':
+    default='log.json',
+    type=str,
+    description:'define where to dump log, only use when --dump = True'
+```
 
-# Example:
+### Run
+
+```
+python csv_parser.py -p path_to_csv_file -o output_file -d True/False
+
+# Orignal way:
 python csv_parser.py -p terrorism.csv
+
+# Dump log for Beats, default to log.json
+python csv_parser.py -p terrorism.csv -d True 
+
+# Dump log for Beats to specific file
+python csv_parser.py -p terrorism.csv -d True -o output.json 
 ```
 
 For more instruction on using parameters:

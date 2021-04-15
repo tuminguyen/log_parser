@@ -1,11 +1,12 @@
 import argparse
-import json
 import traceback
 import pandas as pd
 from elasticsearch import Elasticsearch
 from config import *
-import numpy as np
 from utils import bulk2elastic
+
+from utils import my_converter
+import json
 
 BATCH_SIZE = 50000
 INTERESTED_LIST = ['eventid', 'iyear', 'imonth', 'iday', 'country_txt', 'region_txt', 'city', 'longitude', 'latitude',
@@ -18,24 +19,12 @@ def init_parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', '-p',
                         type=str, help='path to data file')
+    parser.add_argument('--dump', '-d', default=False,
+                        type=bool, help='dump or log for Beats fetch or not')
+    parser.add_argument('--output', '-o', default='log.json',
+                        type=str, help='path name to dump file')
     arguments = parser.parse_args()
     return vars(arguments)
-
-
-def my_converter(obj):
-    '''
-    This function is created to parse dict -> json with no error of "Object of type X is not JSON serializable".
-    By using this, we can parse the dict and write it to file with JSON format. From that, Filebeat when fetching
-    the log file will be able to send it directly as JSON to Elasticsearch or Logstash.
-    :param obj:
-    :return:
-    '''
-    if isinstance(obj, np.integer):
-        return int(obj)
-    elif isinstance(obj, np.floating):
-        return float(obj)
-    elif isinstance(obj, np.ndarray):
-        return obj.tolist()
 
 
 def parse2format(data):
@@ -108,7 +97,6 @@ def parse2format(data):
             item['consequence'] = {"total_kill": data["nkill"][i], "total_wound": data["nwound"][i],
                                    "perp_die": data["nkillter"][i], "perp_wound": data["nwoundte"][i],
                                    "is_property_lost": data["property"][i]}
-            # print(json.dumps(item, default=my_converter()))
             docs_list.append(item)
     except Exception:
         traceback.print_exc()
@@ -129,7 +117,13 @@ if __name__ == '__main__':
         df = df.fillna(0)  # fill NaN = -999999 before adding to ES
         df.loc[:, :].to_dict()
         docs = parse2format(df)
-        bulk2elastic(es, docs, index='terrorism')
+        if args['dump']:  # if dump
+            with open(args["output"], "w", encoding="utf-8") as f_out:
+                for doc in docs:
+                    json.dump(doc, f_out, default=my_converter)
+                    f_out.write("\n")
+        else:
+            bulk2elastic(es, docs, index='terrorism')  # if not dump, bulk the data in original way
 
 '''
 def preprocess(df)
