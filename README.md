@@ -75,3 +75,9 @@ For more instruction on using parameters:
 ```
 python gdelt_parser.py --help
 ```
+
+
+## References
+[GDELT 2.0 Events](http://data.gdeltproject.org/documentation/GDELT-Event_Codebook-V2.0.pdf)
+
+[GDELT TV News](https://blog.gdeltproject.org/announcing-the-television-news-ngram-datasets-tv-ngram/)
