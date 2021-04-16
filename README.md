@@ -25,7 +25,7 @@ conda install --file requirements.txt
 
 <ins>**CSV**<ins>
 
-### Params 
+**Params**
 ```
 '--path', '-p':
     type=str,
@@ -40,7 +40,7 @@ conda install --file requirements.txt
     description:'define where to dump log, only use when --dump = True'
 ```
 
-### Run
+**Run**
 
 ```
 python csv_parser.py -p path_to_csv_file -o output_file -d True/False
