@@ -63,11 +63,24 @@ python csv_parser.py --help
 
 <ins>**GDELT**<ins>
 
+**TV News**
 ```
-python gdelt_parser.py  -s startdate -e endate --station station_list
+python gdelt_parser.py  -s startdate -e enddate --station station_list
 
 # Example:
 python gdelt_parser.py  -s 20210407 -e 20210409 --station CNN BCCNEWS DW
+```
+
+**Events 2.0**
+
+```
+python gdelt_parser.py  -s startdate -e enddate 
+
+# Example 1: set all start + end date
+python gdelt_parser.py -s 20210412 -e 20210416
+
+# Example 2: set start date, end to default (now)
+python gdelt_parser.py -s 20210416
 ```
 
 For more instruction on using parameters:
@@ -76,6 +89,7 @@ For more instruction on using parameters:
 python gdelt_parser.py --help
 ```
 
+Customize your mapping body if you want. You can also use _**"analyzer"**_ for some specific fields.
 
 ## References
 [GDELT 2.0 Events](http://data.gdeltproject.org/documentation/GDELT-Event_Codebook-V2.0.pdf)

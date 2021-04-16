@@ -6,7 +6,7 @@ import csv
 
 def bulk2elastic(es, doc_list, index=''):
     try:
-        response = helpers.bulk(es, doc_list, index=index, doc_type='event')
+        response = helpers.bulk(es, doc_list, index=index)
         print("[INFO]\tBulk Response: \n", json.dumps(response, indent=4))
     except Exception as err:
         print("[ERROR]\t{}".format(err))
@@ -31,10 +31,14 @@ def is_existed(es, index, field, operator, value) -> object:
     '''
 
     res = es.search(index=index, body={"size": 1, "query": {"match_all": {}}})
-    if operator == 'EQUAL':
-        return res['hits']['hits'][0]['_source'][field] == value
+    if len(res['hits']['hits']) == 0:
+        return False
     else:
-        return res['hits']['hits'][0]['_source'][field].__contains__(value[:4] + '-' + value[4:6] + '-' + value[6:8])
+        if operator == 'EQUAL':
+            return res['hits']['hits'][0]['_source'][field] == value
+        else:
+            return res['hits']['hits'][0]['_source'][field].__contains__(
+                value[:4] + '-' + value[4:6] + '-' + value[6:8])
 
 
 def my_converter(obj):
