@@ -182,18 +182,19 @@ def event_glob():
             docs = list()
             response = requests.get("http://data.gdeltproject.org/gdeltv2/{}.export.CSV.zip".format(t))
             zip_f = io.BytesIO(response.content)
-            with zipfile.ZipFile(zip_f, 'r') as f:
-                unzipped_filename = f.filelist[0].filename
-                f.extractall('temp_data/')  # extract zipped data
-                csv2txt('temp_data/{}'.format(unzipped_filename), 'temp_data/csv2txt_parsed.txt')  # save CSV to TXT
-                os.remove('temp_data/{}'.format(unzipped_filename))  # del the downloaded CSV file
-            with open('temp_data/csv2txt_parsed.txt', 'r') as f:
-                for line in f:
-                    line = line.split("\t")
-                    parsed_line = parse2format(line, doc_type='event')
-                    if parsed_line:
-                        docs.append(parsed_line)
-            bulk2elastic(es, docs, index='gdelt-events-2.0')  # if not dump, bulk the data in original way
+            if response.status_code == 200:
+                with zipfile.ZipFile(zip_f, 'r') as f:
+                    unzipped_filename = f.filelist[0].filename
+                    f.extractall('temp_data/')  # extract zipped data
+                    csv2txt('temp_data/{}'.format(unzipped_filename), 'temp_data/csv2txt_parsed.txt')  # save CSV to TXT
+                    os.remove('temp_data/{}'.format(unzipped_filename))  # del the downloaded CSV file
+                with open('temp_data/csv2txt_parsed.txt', 'r') as f:
+                    for line in f:
+                        line = line.split("\t")
+                        parsed_line = parse2format(line, doc_type='event')
+                        if parsed_line:
+                            docs.append(parsed_line)
+                bulk2elastic(es, docs, index='gdelt-events-2.0')  # if not dump, bulk the data in original way
 
 
 if __name__ == '__main__':
